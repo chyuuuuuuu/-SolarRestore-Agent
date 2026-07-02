@@ -171,6 +171,62 @@
       font-weight: 650;
     }
 
+    .showcase {
+      margin-bottom: 16px;
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+    }
+    .visual-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      overflow: hidden;
+      position: relative;
+      min-height: 240px;
+    }
+    .visual-card svg {
+      width: 100%;
+      height: 100%;
+      min-height: 240px;
+      display: block;
+    }
+    .visual-caption {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      padding: 9px 10px;
+      border: 1px solid rgba(216, 225, 234, .92);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(6px);
+      display: grid;
+      gap: 2px;
+    }
+    .visual-caption strong { color: var(--ink); font-size: 13px; }
+    .visual-caption span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .showcase-facts {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      overflow: hidden;
+    }
+    .mini-fact {
+      padding: 11px 12px;
+      border-right: 1px solid var(--line);
+      display: grid;
+      gap: 4px;
+    }
+    .mini-fact:last-child { border-right: 0; }
+    .mini-fact span { color: var(--muted); font-size: 12px; }
+    .mini-fact strong { color: var(--ink); font-size: 13px; line-height: 1.25; }
+
     .map {
       min-height: 286px;
       position: relative;
@@ -360,7 +416,9 @@
       .topbar-inner { align-items: flex-start; flex-direction: column; }
       .nav { justify-content: flex-start; }
       main { padding-inline: 14px; }
-      .dashboard, .inspector, .comparison, .detail-grid { grid-template-columns: 1fr; }
+      .dashboard, .inspector, .comparison, .detail-grid, .showcase-grid, .showcase-facts { grid-template-columns: 1fr; }
+      .mini-fact { border-right: 0; border-bottom: 1px solid var(--line); }
+      .mini-fact:last-child { border-bottom: 0; }
       .status-strip { grid-template-columns: 1fr; }
       .summary-title h2 { font-size: 25px; }
       .pipeline { grid-template-columns: repeat(9, 126px); }
@@ -388,6 +446,81 @@
 
   <main>
     <section class="status-strip" id="kpis" aria-label="核心指标"></section>
+
+    <section class="panel showcase" aria-label="全球站点与万站光伏展示">
+      <div class="panel-head">
+        <h2>全球站点与万站光伏</h2>
+        <span>保留展示图</span>
+      </div>
+      <div class="panel-body">
+        <div class="showcase-grid">
+          <div class="visual-card">
+            <svg viewBox="0 0 520 300" role="img" aria-label="万站光伏真实能力还原">
+              <defs>
+                <linearGradient id="pvSkyStatic" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#eaf8fa" />
+                  <stop offset="1" stop-color="#fff7e6" />
+                </linearGradient>
+                <linearGradient id="pvPanelStatic" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#1b4d89" />
+                  <stop offset="1" stop-color="#2f6fed" />
+                </linearGradient>
+              </defs>
+              <rect width="520" height="300" fill="url(#pvSkyStatic)" />
+              <circle cx="424" cy="64" r="34" fill="#f4b740" opacity=".9" />
+              <path d="M0 226 C110 190 168 232 274 202 C372 174 432 206 520 184 L520 300 L0 300 Z" fill="#dff4e8" />
+              <path d="M104 172 L244 92 L384 172 L384 252 L104 252 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="3" />
+              <path d="M84 176 L244 78 L404 176 Z" fill="#334155" />
+              <path d="M150 156 L242 102 L334 156 L310 176 L174 176 Z" fill="url(#pvPanelStatic)" stroke="#dbeafe" stroke-width="2" />
+              <path d="M178 143 L316 143 M202 128 L292 128 M214 112 L270 112 M194 158 L286 106 M236 176 L328 132" stroke="#b9d6ff" stroke-width="2" opacity=".8" />
+              <rect x="138" y="202" width="54" height="50" rx="4" fill="#eaf1ff" stroke="#cbd5e1" />
+              <rect x="264" y="198" width="78" height="40" rx="5" fill="#f8fafc" stroke="#cbd5e1" />
+              <path d="M60 232 L450 232" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" opacity=".5" />
+              <path d="M398 142 C430 128 455 135 474 158" stroke="#138a55" stroke-width="4" fill="none" stroke-linecap="round" />
+              <path d="M398 142 C420 168 448 176 480 168" stroke="#138a55" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8" />
+            </svg>
+            <div class="visual-caption"><strong>万站光伏真实能力还原</strong><span>削峰后观测曲线被压平，Agent 还原真实发电上限。</span></div>
+          </div>
+          <div class="visual-card">
+            <svg viewBox="0 0 520 300" role="img" aria-label="全球化光伏站点调度">
+              <defs>
+                <linearGradient id="globalBgStatic" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#eef6ff" />
+                  <stop offset="1" stop-color="#eaf7f0" />
+                </linearGradient>
+              </defs>
+              <rect width="520" height="300" fill="url(#globalBgStatic)" />
+              <circle cx="260" cy="142" r="96" fill="#ffffff" stroke="#cbd5e1" stroke-width="3" />
+              <ellipse cx="260" cy="142" rx="96" ry="38" fill="none" stroke="#93c5fd" stroke-width="3" />
+              <ellipse cx="260" cy="142" rx="48" ry="96" fill="none" stroke="#93c5fd" stroke-width="3" />
+              <path d="M178 100 C224 116 282 118 342 96 M176 184 C232 166 294 166 344 186" stroke="#93c5fd" stroke-width="3" fill="none" />
+              <path d="M142 118 C118 132 98 154 82 184 M378 104 C420 118 450 148 468 190 M170 224 C126 222 94 204 70 172 M350 222 C404 222 448 204 480 168" stroke="#087f8c" stroke-width="2.5" fill="none" stroke-dasharray="6 7" opacity=".85" />
+              <g fill="#2f6fed">
+                <circle cx="168" cy="110" r="8" />
+                <circle cx="320" cy="96" r="8" />
+                <circle cx="344" cy="190" r="8" />
+                <circle cx="214" cy="202" r="8" />
+              </g>
+              <g fill="#138a55">
+                <circle cx="82" cy="184" r="7" />
+                <circle cx="468" cy="190" r="7" />
+                <circle cx="480" cy="168" r="7" />
+                <circle cx="70" cy="172" r="7" />
+              </g>
+              <rect x="202" y="126" width="116" height="48" rx="10" fill="#17212f" opacity=".9" />
+              <path d="M222 154 L244 154 L252 138 L266 164 L276 148 L288 154 L300 154" stroke="#6ee7b7" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="visual-caption"><strong>全球区域本地时区调度</strong><span>按区域 19:45 自动运行，万级站点统一归因和灰度。</span></div>
+          </div>
+        </div>
+        <div class="showcase-facts">
+          <div class="mini-fact"><span>全球站点</span><strong>多区域本地时区调度</strong></div>
+          <div class="mini-fact"><span>万站光伏</span><strong>统一削峰识别与还原</strong></div>
+          <div class="mini-fact"><span>灰度策略</span><strong>第一版 vs 10000 站候选模型</strong></div>
+          <div class="mini-fact"><span>闭环目标</span><strong>归因 -> 样本回流 -> 模型晋升</strong></div>
+        </div>
+      </div>
+    </section>
 
     <section class="dashboard">
       <aside class="stack">
