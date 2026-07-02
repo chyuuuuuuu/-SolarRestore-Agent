@@ -7,20 +7,24 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f4f7fb;
+      --bg: #eef3f8;
       --surface: #ffffff;
+      --surface-2: #f7fafc;
       --ink: #17202c;
       --text: #263445;
       --muted: #667789;
-      --line: #dbe3ec;
+      --line: #d8e1ea;
       --blue: #2563eb;
-      --green: #168557;
+      --green: #158557;
       --cyan: #087f8c;
       --amber: #b26a05;
       --red: #c93636;
-      --shadow: 0 16px 40px rgba(25, 39, 58, .08);
+      --violet: #635bff;
+      --shadow: 0 14px 34px rgba(23, 32, 44, .08);
     }
+
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -28,374 +32,812 @@
       color: var(--text);
       font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
     }
-    header {
-      background: #fff;
-      border-bottom: 1px solid var(--line);
+    button, input { font: inherit; }
+
+    .topbar {
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
+      background: rgba(255, 255, 255, .96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
     }
-    .topbar {
-      max-width: 1180px;
+    .topbar-inner {
+      max-width: 1440px;
       margin: 0 auto;
-      padding: 14px 22px;
+      padding: 13px 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 18px;
     }
-    .brand h1 { margin: 0; color: var(--ink); font-size: 22px; line-height: 1.2; }
-    .brand span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
-    nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-    nav a {
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 260px; }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: #f5f9ff;
+      border: 1px solid #cfe0f7;
+      color: var(--blue);
+      font-weight: 900;
+    }
+    .brand h1 { margin: 0; color: var(--ink); font-size: 20px; line-height: 1.15; }
+    .brand span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .nav a, .nav button {
+      min-height: 36px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
       color: var(--text);
       text-decoration: none;
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 7px;
-      padding: 8px 11px;
+      cursor: pointer;
       font-size: 13px;
     }
-    nav a.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
-    main { max-width: 1180px; margin: 0 auto; padding: 24px 22px 44px; }
-    .hero {
+    .nav a.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+    main { max-width: 1440px; margin: 0 auto; padding: 18px 22px 40px; }
+    .dashboard {
       display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
-      gap: 18px;
-      align-items: stretch;
-      margin-bottom: 18px;
+      grid-template-columns: minmax(280px, .78fr) minmax(0, 1.6fr) minmax(330px, .82fr);
+      gap: 16px;
+      align-items: start;
     }
+    .stack { display: grid; gap: 16px; }
     .panel {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
       box-shadow: var(--shadow);
+      min-width: 0;
     }
-    .intro { padding: 24px; display: grid; align-content: center; gap: 16px; }
-    .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 800; text-transform: uppercase; }
-    .intro h2 { margin: 0; color: var(--ink); font-size: clamp(30px, 5vw, 52px); line-height: 1.04; letter-spacing: 0; }
-    .intro p { margin: 0; color: #4d5f72; font-size: 15px; line-height: 1.7; max-width: 760px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip {
+    .panel-head {
+      padding: 14px 15px 10px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .panel-head h2 { margin: 0; color: var(--ink); font-size: 16px; line-height: 1.25; }
+    .panel-head span { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .panel-body { padding: 15px; }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 13px;
+      min-height: 106px;
+      display: grid;
+      gap: 7px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: var(--blue);
+    }
+    .kpi.green::after { background: var(--green); }
+    .kpi.amber::after { background: var(--amber); }
+    .kpi.red::after { background: var(--red); }
+    .kpi-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
+    .kpi-value { color: var(--ink); font-size: 28px; line-height: 1; font-weight: 850; }
+    .kpi-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    .operation-summary {
+      min-height: 210px;
+      display: grid;
+      gap: 14px;
+    }
+    .summary-title {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .summary-title h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 30px;
+      line-height: 1.1;
+    }
+    .summary-title p { margin: 0; color: #4e6175; line-height: 1.62; font-size: 14px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge {
       display: inline-flex;
       align-items: center;
-      min-height: 30px;
+      min-height: 28px;
+      padding: 4px 9px;
       border: 1px solid var(--line);
-      background: #f8fafc;
-      color: #324154;
       border-radius: 999px;
-      padding: 5px 10px;
+      background: var(--surface-2);
+      color: #324154;
       font-size: 12px;
       font-weight: 650;
     }
-    .visual { padding: 18px; display: grid; gap: 12px; }
-    .sun-card {
-      min-height: 270px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
+
+    .map {
+      min-height: 286px;
       position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--line);
       background:
-        radial-gradient(circle at 72% 18%, #ffd35a 0 11%, transparent 12%),
-        linear-gradient(180deg, #eaf4ff 0%, #f7fbff 48%, #e9f7f0 49%, #ffffff 100%);
+        linear-gradient(180deg, #f7fbff 0%, #ffffff 58%, #f3faf7 100%);
     }
-    .grid-lines {
+    .map svg { width: 100%; height: 100%; min-height: 286px; display: block; }
+    .map-tip {
       position: absolute;
-      inset: 58% 0 0;
-      background-image:
-        linear-gradient(90deg, rgba(22, 133, 87, .18) 1px, transparent 1px),
-        linear-gradient(0deg, rgba(22, 133, 87, .18) 1px, transparent 1px);
-      background-size: 36px 22px;
-      transform: perspective(460px) rotateX(58deg);
-      transform-origin: top;
-    }
-    .curve {
-      position: absolute;
-      left: 8%;
-      right: 8%;
-      top: 24%;
-      height: 48%;
-      border-bottom: 4px solid var(--blue);
-      border-radius: 0 0 50% 50%;
-    }
-    .curve::after {
-      content: "";
-      position: absolute;
-      left: 22%;
-      right: 22%;
-      bottom: -4px;
-      height: 46%;
-      border-top: 4px solid var(--red);
-      border-radius: 50% 50% 0 0;
-    }
-    .caption {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 14px;
-      background: rgba(255, 255, 255, .92);
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 11px 12px;
+      background: rgba(255, 255, 255, .92);
+      padding: 10px 11px;
       display: grid;
       gap: 3px;
     }
-    .caption strong { color: var(--ink); font-size: 14px; }
-    .caption span { color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .stat { padding: 16px; min-height: 112px; display: grid; gap: 8px; }
-    .stat span { color: var(--muted); font-size: 12px; }
-    .stat strong { color: var(--ink); font-size: 25px; line-height: 1.1; }
-    .stat p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .workspace {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(320px, .42fr);
-      gap: 18px;
-      align-items: start;
-    }
-    .section-head {
-      padding: 15px 16px 10px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-    .section-head h3 { margin: 0; color: var(--ink); font-size: 16px; }
-    .section-head span { color: var(--muted); font-size: 12px; }
-    .section-body { padding: 16px; }
-    .flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-    .step {
+    .map-tip strong { color: var(--ink); font-size: 13px; }
+    .map-tip span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    .chart-wrap { min-height: 320px; }
+    .chart { width: 100%; min-height: 290px; display: block; overflow: visible; }
+    .chart text { font-family: inherit; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 10px; height: 10px; border-radius: 3px; background: var(--blue); }
+    .swatch.green { background: var(--green); }
+    .swatch.amber { background: var(--amber); }
+    .swatch.red { background: var(--red); }
+    .swatch.cyan { background: var(--cyan); }
+
+    .region-list, .issue-list, .agent-list { display: grid; gap: 9px; }
+    .region-row, .issue-row, .agent-row {
+      width: 100%;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 13px;
-      min-height: 128px;
-      background: #fbfcfe;
+      background: #fff;
+      padding: 10px;
       display: grid;
-      gap: 7px;
-      align-content: start;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
     }
-    .step b { color: var(--ink); }
-    .step span { color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .bars { display: grid; gap: 12px; }
-    .bar-row { display: grid; gap: 6px; }
-    .bar-label { display: flex; justify-content: space-between; gap: 12px; color: var(--text); font-size: 13px; }
-    .bar-track { height: 11px; background: #edf2f7; border-radius: 99px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: inherit; background: var(--blue); }
-    .bar-fill.green { background: var(--green); }
-    .bar-fill.amber { background: var(--amber); }
-    .bar-fill.red { background: var(--red); }
-    .chat { display: grid; gap: 10px; }
+    .region-row:hover, .issue-row:hover, .agent-row:hover { border-color: #aeb9c7; }
+    .region-row.active, .issue-row.active {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+    }
+    .row-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .row-head b { color: var(--ink); font-size: 13px; }
+    .row-head span { color: var(--muted); font-size: 12px; }
+    .meter {
+      height: 9px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      background: #edf2f7;
+    }
+    .meter div { height: 100%; }
+    .meter .success { background: var(--green); }
+    .meter .failed { background: var(--red); }
+    .meter .pending { background: #dce6f2; }
+    .row-meta { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .detail-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+    }
+    .detail-card span { color: var(--muted); font-size: 12px; }
+    .detail-card strong { color: var(--ink); font-size: 17px; }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(92px, 1fr));
+      gap: 9px;
+      overflow-x: auto;
+      padding-bottom: 3px;
+    }
+    .stage {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+      min-height: 110px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      position: relative;
+    }
+    .stage::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .stage.gray::before { background: var(--blue); }
+    .stage.planned::before { background: var(--amber); }
+    .stage b { color: var(--ink); font-size: 13px; line-height: 1.35; }
+    .stage span { color: var(--muted); font-size: 12px; }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+    }
+    .model-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .model-card h3 { margin: 0; color: var(--ink); font-size: 14px; }
+    .score-line { display: grid; gap: 6px; }
+    .score-line label { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
+
+    .inspector {
+      position: sticky;
+      top: 78px;
+      display: grid;
+      gap: 16px;
+    }
+    .inspector-title { display: grid; gap: 5px; }
+    .inspector-title h3 { margin: 0; color: var(--ink); font-size: 18px; }
+    .inspector-title p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .alert {
+      border: 1px solid #f0caca;
+      border-radius: 8px;
+      background: #fff7f7;
+      color: #8d2525;
+      padding: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .quick-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick-actions button {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      padding: 8px 9px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .chat-log { display: grid; gap: 9px; }
     .bubble {
       border: 1px solid var(--line);
-      background: #fbfcfe;
       border-radius: 8px;
-      padding: 11px 12px;
+      background: var(--surface-2);
+      padding: 10px;
+      color: #304255;
       font-size: 13px;
       line-height: 1.55;
     }
-    .bubble.user { background: #eef5ff; border-color: #c9daf8; }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    button {
-      cursor: pointer;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--text);
-      border-radius: 7px;
-      padding: 9px 10px;
-      font: inherit;
-      font-size: 13px;
-    }
-    button:hover { border-color: #aeb9c7; }
-    .report {
-      white-space: pre-wrap;
-      margin: 0;
-      color: #2f3f52;
-      font-size: 13px;
-      line-height: 1.6;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 13px;
-    }
-    footer {
+    .bubble.user { background: #eef5ff; border-color: #c9daf8; color: #1f3e70; }
+
+    .footer-note {
+      margin-top: 18px;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.6;
-      padding-top: 18px;
     }
-    @media (max-width: 920px) {
-      .hero, .workspace { grid-template-columns: 1fr; }
-      .stats, .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .topbar { align-items: flex-start; flex-direction: column; }
-      nav { justify-content: flex-start; }
+
+    @media (max-width: 1180px) {
+      .dashboard { grid-template-columns: minmax(270px, .85fr) minmax(0, 1.4fr); }
+      .inspector { position: static; grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+      .status-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-    @media (max-width: 560px) {
+    @media (max-width: 820px) {
+      .topbar-inner { align-items: flex-start; flex-direction: column; }
+      .nav { justify-content: flex-start; }
       main { padding-inline: 14px; }
-      .topbar { padding-inline: 14px; }
-      .stats, .flow { grid-template-columns: 1fr; }
-      .intro h2 { font-size: 32px; }
+      .dashboard, .inspector, .comparison, .detail-grid { grid-template-columns: 1fr; }
+      .status-strip { grid-template-columns: 1fr; }
+      .summary-title h2 { font-size: 25px; }
+      .pipeline { grid-template-columns: repeat(9, 126px); }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="topbar">
+  <header class="topbar">
+    <div class="topbar-inner">
       <div class="brand">
-        <h1>光擎 SolarRestore Agent</h1>
-        <span>全球光伏削峰还原自进化智能体平台</span>
+        <div class="brand-mark">光</div>
+        <div>
+          <h1>光擎 SolarRestore Agent</h1>
+          <span>全球光伏削峰还原自进化智能体平台</span>
+        </div>
       </div>
-      <nav>
-        <a href="#workflow">闭环流程</a>
-        <a href="#demo">交互演示</a>
+      <nav class="nav">
+        <a href="#regions">区域健康度</a>
+        <a href="#issues">问题归因</a>
+        <a href="#pipeline">进化闭环</a>
         <a class="primary" href="https://github.com/chyuuuuuuu/-SolarRestore-Agent">GitHub</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <section class="hero">
-      <div class="panel intro">
-        <div class="eyebrow">Solar PV Clipping Restoration Agent</div>
-        <h2>把削峰识别、功率还原和模型进化串成可解释的生产闭环</h2>
-        <p>系统每天按区域时区运行，识别潜在削峰站点，恢复真实发电能力，并把失败归因、样本回流、数据集重构、候选模型灰度和飞书确认卡片统一到一个 Agent 工作台。</p>
-        <div class="chips">
-          <span class="chip">监控看板</span>
-          <span class="chip">日志归因</span>
-          <span class="chip">样本回流</span>
-          <span class="chip">灰度评估</span>
-          <span class="chip">飞书交互</span>
-        </div>
-      </div>
-      <div class="panel visual">
-        <div class="sun-card" aria-label="削峰还原曲线示意图">
-          <div class="curve"></div>
-          <div class="grid-lines"></div>
-          <div class="caption">
-            <strong>还原前后功率曲线</strong>
-            <span>红色为被削峰曲线，蓝色为 Agent 估算的可发电能力上沿。</span>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section class="status-strip" id="kpis" aria-label="核心指标"></section>
 
-    <section class="stats" aria-label="样例运行指标">
-      <div class="panel stat">
-        <span>覆盖区域</span>
-        <strong>13</strong>
-        <p>按本地时区调度生产任务</p>
-      </div>
-      <div class="panel stat">
-        <span>样例站点</span>
-        <strong>29,456</strong>
-        <p>欧洲日终样例监控口径</p>
-      </div>
-      <div class="panel stat">
-        <span>潜在削峰</span>
-        <strong>58.2%</strong>
-        <p>进入检测与还原链路</p>
-      </div>
-      <div class="panel stat">
-        <span>样本回流</span>
-        <strong>3,262</strong>
-        <p>进入高价值样本池</p>
-      </div>
-    </section>
-
-    <div class="workspace">
-      <div class="left">
-        <section id="workflow" class="panel">
-          <div class="section-head">
-            <h3>生产闭环</h3>
-            <span>从当天运行到下一版模型</span>
-          </div>
-          <div class="section-body">
-            <div class="flow">
-              <div class="step"><b>1. 监控运行</b><span>按区域和本地时区触发削峰检测、场景识别和功率还原。</span></div>
-              <div class="step"><b>2. 自动归因</b><span>汇总功率插值失败、重复索引、无功率、气象缺失和接口契约问题。</span></div>
-              <div class="step"><b>3. 样本回流</b><span>把失败原因沉淀成高价值样本池，重构数据集和场景标签。</span></div>
-              <div class="step"><b>4. 灰度进化</b><span>新旧模型复用同一份输入并行推理，依据收益和稳定性晋升。</span></div>
+    <section class="dashboard">
+      <aside class="stack">
+        <section class="panel operation-summary">
+          <div class="panel-body summary-title">
+            <div class="badges">
+              <span class="badge">2026-05-28 样例日</span>
+              <span class="badge">13 个区域</span>
             </div>
+            <h2>削峰还原生产态总览</h2>
+            <p>这不是静态介绍页，而是一张可分享的光伏削峰还原运营看板。页面用内置样例数据展示检测、还原、归因、回流和灰度评估的端到端状态。</p>
           </div>
         </section>
 
-        <section class="panel" style="margin-top:18px">
-          <div class="section-head">
-            <h3>区域处理表现</h3>
-            <span>样例数据</span>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>欧洲运行态势</h2>
+            <span>站点热区</span>
           </div>
-          <div class="section-body bars">
-            <div class="bar-row">
-              <div class="bar-label"><span>Europe/Berlin 成功率</span><b>32.72%</b></div>
-              <div class="bar-track"><div class="bar-fill red" style="width:32.72%"></div></div>
-            </div>
-            <div class="bar-row">
-              <div class="bar-label"><span>Europe/London 成功率</span><b>34.85%</b></div>
-              <div class="bar-track"><div class="bar-fill amber" style="width:34.85%"></div></div>
-            </div>
-            <div class="bar-row">
-              <div class="bar-label"><span>Europe/Madrid 成功率</span><b>55.77%</b></div>
-              <div class="bar-track"><div class="bar-fill green" style="width:55.77%"></div></div>
-            </div>
+          <div class="panel-body">
+            <div class="map" id="europeMap"></div>
           </div>
         </section>
-      </div>
 
-      <aside id="demo" class="panel">
-        <div class="section-head">
-          <h3>Agent 问答</h3>
-          <span>静态演示</span>
-        </div>
-        <div class="section-body chat">
-          <div class="bubble user" id="question">失败最多的原因是什么？</div>
-          <div class="bubble" id="answer">失败最多的是功率数据插值失败，其次是重复索引和无功率数据。Agent 会把这些问题分桶进入数据质量集、预处理规则集和可用性报表，而不是直接污染训练样本。</div>
-          <div class="actions">
-            <button data-question="status">运行状态</button>
-            <button data-question="risk">区域风险</button>
-            <button data-question="gray">灰度评估</button>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>模型灰度对比</h2>
+            <span>同源输入</span>
           </div>
-          <pre class="report" id="report">日终建议：
-1. 优先处理 Europe/Berlin 和 Europe/London 的失败链路。
-2. 对重复 timestamp 训练前统一聚合或去重。
-3. 将无功率数据标记为可用性问题，不作为负样本训练。
-4. 候选模型进入灰度前，需要通过收益、稳定性和接口契约三类指标。</pre>
-        </div>
+          <div class="panel-body comparison" id="modelComparison"></div>
+        </section>
       </aside>
-    </div>
 
-    <footer>
-      这是公开展示页，不包含生产凭证。完整可运行服务见仓库中的 <code>demo/pv_clipping_feishu_agent/server.py</code>。
-    </footer>
+      <section class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>还原前后功率曲线</h2>
+            <span>5 分钟粒度样例</span>
+          </div>
+          <div class="panel-body chart-wrap">
+            <svg class="chart" id="curveChart" viewBox="0 0 900 320" role="img" aria-label="削峰还原曲线"></svg>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch red"></i>观测削峰功率</span>
+              <span class="legend-item"><i class="swatch green"></i>还原后能力曲线</span>
+              <span class="legend-item"><i class="swatch amber"></i>削峰窗口</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="regions">
+          <div class="panel-head">
+            <h2>区域健康度</h2>
+            <span>点击区域查看详情</span>
+          </div>
+          <div class="panel-body">
+            <div class="region-list" id="regionList"></div>
+            <div class="detail-grid" id="regionDetail"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="issues">
+          <div class="panel-head">
+            <h2>问题归因 Pareto</h2>
+            <span>从日志到样本池</span>
+          </div>
+          <div class="panel-body chart-wrap">
+            <svg class="chart" id="issueChart" viewBox="0 0 900 330" role="img" aria-label="问题归因 Pareto"></svg>
+            <div class="issue-list" id="issueList"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="pipeline">
+          <div class="panel-head">
+            <h2>Agent 自进化闭环</h2>
+            <span>运行 / 灰度 / 规划</span>
+          </div>
+          <div class="panel-body">
+            <div class="pipeline" id="pipelineStages"></div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="inspector">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>风险队列</h2>
+            <span>实时解读</span>
+          </div>
+          <div class="panel-body">
+            <div class="inspector-title">
+              <h3 id="focusTitle">Europe/Berlin</h3>
+              <p id="focusText">最大站点池，失败/跳过数量最高，优先进入日志归因和样本回流队列。</p>
+            </div>
+            <div class="detail-grid" id="focusMetrics"></div>
+            <div class="alert" id="focusAlert">建议优先检查功率插值、重复 timestamp、无功率数据三类链路。</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Agent 交互</h2>
+            <span>静态问答</span>
+          </div>
+          <div class="panel-body">
+            <div class="quick-actions">
+              <button data-question="status">运行状态</button>
+              <button data-question="risk">最高风险</button>
+              <button data-question="sample">样本回流</button>
+              <button data-question="gray">灰度评估</button>
+            </div>
+            <div class="chat-log" style="margin-top:12px">
+              <div class="bubble user" id="question">今天欧洲削峰还原状态如何？</div>
+              <div class="bubble" id="answer">样例日覆盖 29,456 个站点，潜在削峰 17,142 个。当前看板把成功率、失败原因、区域风险和模型灰度放在同一个运营视图里。</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>高价值样本池</h2>
+            <span>3,262 条</span>
+          </div>
+          <div class="panel-body">
+            <svg class="chart" id="sampleChart" viewBox="0 0 420 260" role="img" aria-label="样本池分布"></svg>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <p class="footer-note">
+      公开页面只包含静态样例数据和可视化前端，不包含生产凭证、内部配置、模型权重或原仓库历史。完整可运行 demo 位于仓库的 <code>demo/pv_clipping_feishu_agent/server.py</code>。
+    </p>
   </main>
 
   <script>
-    const answers = {
-      status: {
-        q: "今天欧洲削峰还原状态如何？",
-        a: "样例日覆盖 29,456 个站点，潜在削峰占比 58.2%。当前重点不是单点预测，而是把失败链路归因并沉淀到下一轮模型和规则迭代。"
-      },
-      risk: {
-        q: "Europe/Berlin 为什么风险最高？",
-        a: "Berlin 区域站点规模最大，失败或跳过数量最高，成功率只有 32.72%。Agent 会优先拉取该区域日志和样本，定位数据接入、重复索引和功率缺失问题。"
-      },
-      gray: {
-        q: "新旧模型灰度机制怎么评估？",
-        a: "候选模型与基线模型复用同一份功率、气象、配置、mask 和 scene_vector 输入，并行输出后比较多发电量、误差稳定性、边界场景和失败率。"
-      }
+    const summary = {
+      coveredRegions: 13,
+      totalStations: 29456,
+      potential: 17142,
+      success: 6079,
+      failed: 11063
     };
-    document.querySelectorAll("button[data-question]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const item = answers[button.dataset.question];
-        document.getElementById("question").textContent = item.q;
-        document.getElementById("answer").textContent = item.a;
+
+    const regions = [
+      { area: "Europe/Berlin", total: 19599, potential: 9066, success: 2966, failed: 6100, x: 55, y: 48 },
+      { area: "Europe/London", total: 6876, potential: 5526, success: 1926, failed: 3600, x: 31, y: 46 },
+      { area: "Europe/Madrid", total: 1811, potential: 1628, success: 908, failed: 720, x: 37, y: 70 },
+      { area: "Europe/Sarajevo", total: 886, potential: 771, success: 188, failed: 583, x: 60, y: 68 },
+      { area: "Europe/Helsinki", total: 178, potential: 88, success: 48, failed: 40, x: 68, y: 25 }
+    ];
+
+    const issues = [
+      { type: "功率数据插值失败", count: 1147, bucket: "data_quality", action: "沉淀 station/date/power_source，进入功率插值质量集" },
+      { type: "重复索引导致插值失败", count: 1011, bucket: "duplicate_index", action: "训练前统一去重或聚合，接入层强制 index 唯一化" },
+      { type: "无功率数据", count: 728, bucket: "missing_power", action: "输出区域/站点/日期缺失 TopN，进入数据可用性报表" },
+      { type: "气象空表", count: 138, bucket: "missing_weather", action: "记录 weather_source，补充天气缺失兜底策略" },
+      { type: "工程契约风险", count: 136, bucket: "code_contract", action: "作为工程契约问题拦截，不进入训练集" },
+      { type: "mask 边界失败", count: 51, bucket: "mask_boundary", action: "构建非 288 点、短日曲线、边界点削峰样本" },
+      { type: "接口返回不一致", count: 51, bucket: "interface_contract", action: "固定 mask 与 scene_vector 返回结构，并加契约测试" }
+    ];
+
+    const pipeline = [
+      ["线上每日还原结果", "running"],
+      ["日终分析 Agent 归因", "running"],
+      ["失败原因与新削峰场景识别", "running"],
+      ["高价值样本回流", "running"],
+      ["数据集与场景标签重构", "running"],
+      ["训练 10000 站候选模型", "planned"],
+      ["S3 发布候选模型", "planned"],
+      ["生产双模型灰度并行", "gray"],
+      ["指标评估与主模型晋升", "planned"]
+    ];
+
+    const sampleBuckets = [
+      ["数据质量", 1147, "#2563eb"],
+      ["重复索引", 1011, "#158557"],
+      ["无功率", 728, "#b26a05"],
+      ["契约/边界", 376, "#c93636"]
+    ];
+
+    const questions = {
+      status: ["今天欧洲削峰还原状态如何？", "样例日覆盖 29,456 个站点，潜在削峰 17,142 个，成功还原 6,079 个。重点风险集中在 Berlin 和 London。"],
+      risk: ["Europe/Berlin 为什么风险最高？", "Berlin 总站点数和失败/跳过量最大，失败链路覆盖功率插值、重复索引和无功率数据，优先级应排在第一。"],
+      sample: ["高价值样本回流怎么做？", "Agent 将问题分桶到数据质量集、预处理规则集、可用性报表和契约 blocklist，再生成可训练数据集版本。"],
+      gray: ["新旧模型灰度机制怎么评估？", "候选模型与基线模型复用同一份功率、气象、配置、mask 和 scene_vector，并行比较收益、稳定性、边界场景和失败率。"]
+    };
+
+    function fmt(n) {
+      return Number(n).toLocaleString("en-US");
+    }
+
+    function pct(n, d) {
+      return d ? `${(n / d * 100).toFixed(1)}%` : "0%";
+    }
+
+    function svgEl(name, attrs = {}) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+      return el;
+    }
+
+    function renderKpis() {
+      const potentialRatio = summary.potential / summary.totalStations * 100;
+      const successRate = summary.success / summary.potential * 100;
+      const failedRate = summary.failed / summary.potential * 100;
+      const items = [
+        ["覆盖区域", summary.coveredRegions, "按本地时区触发日终削峰还原", ""],
+        ["总站点", fmt(summary.totalStations), "进入欧洲样例日监控口径", "green"],
+        ["潜在削峰", `${potentialRatio.toFixed(1)}%`, `${fmt(summary.potential)} 个站点进入检测链路`, "amber"],
+        ["失败/跳过", `${failedRate.toFixed(1)}%`, `成功率 ${successRate.toFixed(1)}%，需优先归因`, "red"]
+      ];
+      document.getElementById("kpis").innerHTML = items.map(([label, value, note, tone]) => `
+        <article class="kpi ${tone}">
+          <div class="kpi-label"><span>${label}</span><span>sample</span></div>
+          <div class="kpi-value">${value}</div>
+          <p class="kpi-note">${note}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderMap() {
+      const map = document.getElementById("europeMap");
+      const svg = svgEl("svg", { viewBox: "0 0 420 286", role: "img" });
+      const grid = svgEl("g", { opacity: ".58" });
+      for (let x = 20; x < 420; x += 36) grid.appendChild(svgEl("line", { x1: x, y1: 20, x2: x, y2: 230, stroke: "#d8e1ea", "stroke-width": "1" }));
+      for (let y = 24; y < 250; y += 28) grid.appendChild(svgEl("line", { x1: 18, y1: y, x2: 400, y2: y, stroke: "#e2e8f0", "stroke-width": "1" }));
+      svg.appendChild(grid);
+
+      const land = svgEl("path", {
+        d: "M92 118 C102 64 167 35 234 45 C309 56 360 93 351 153 C341 219 260 249 178 231 C118 218 80 179 92 118 Z",
+        fill: "#eaf6ef",
+        stroke: "#b7d8c5",
+        "stroke-width": "2"
       });
-    });
+      svg.appendChild(land);
+
+      regions.forEach((region, index) => {
+        const failure = region.failed / region.potential;
+        const radius = 9 + Math.sqrt(region.potential) / 10;
+        const cx = region.x * 4.2;
+        const cy = region.y * 2.6;
+        const color = failure > .65 ? "#c93636" : failure > .45 ? "#b26a05" : "#158557";
+        const group = svgEl("g", { class: "map-dot", tabindex: "0" });
+        group.appendChild(svgEl("circle", { cx, cy, r: radius + 5, fill: color, opacity: ".12" }));
+        group.appendChild(svgEl("circle", { cx, cy, r: radius, fill: color, opacity: ".86" }));
+        group.appendChild(svgEl("text", { x: cx + radius + 7, y: cy + 4, fill: "#263445", "font-size": "12" }));
+        group.lastChild.textContent = region.area.replace("Europe/", "");
+        group.addEventListener("click", () => selectRegion(index));
+        svg.appendChild(group);
+      });
+
+      map.innerHTML = "";
+      map.appendChild(svg);
+      map.insertAdjacentHTML("beforeend", `
+        <div class="map-tip">
+          <strong>气泡大小代表潜在削峰站点数</strong>
+          <span>红色为失败率最高区域，点击气泡或区域列表可联动右侧风险队列。</span>
+        </div>
+      `);
+    }
+
+    function renderCurve() {
+      const svg = document.getElementById("curveChart");
+      svg.innerHTML = "";
+      const width = 900, height = 320, left = 48, right = 24, top = 22, bottom = 42;
+      const plotW = width - left - right, plotH = height - top - bottom;
+      const observed = [0, 8, 22, 45, 72, 88, 93, 92, 92, 92, 91, 92, 90, 86, 62, 34, 12, 0];
+      const restored = [0, 8, 23, 48, 78, 103, 119, 128, 132, 130, 124, 113, 98, 83, 60, 34, 12, 0];
+      const x = i => left + i * plotW / (observed.length - 1);
+      const y = v => top + (1 - v / 140) * plotH;
+      const line = arr => arr.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+      const area = arr => `${line(arr)} L${left + plotW} ${top + plotH} L${left} ${top + plotH} Z`;
+
+      for (let i = 0; i <= 4; i++) {
+        const yy = top + i * plotH / 4;
+        svg.appendChild(svgEl("line", { x1: left, y1: yy, x2: left + plotW, y2: yy, stroke: "#e2e8f0" }));
+        const text = svgEl("text", { x: 10, y: yy + 4, fill: "#667789", "font-size": "11" });
+        text.textContent = `${140 - i * 35}kW`;
+        svg.appendChild(text);
+      }
+      svg.appendChild(svgEl("rect", { x: x(6), y: top, width: x(12) - x(6), height: plotH, fill: "#fff3d8", opacity: ".72" }));
+      svg.appendChild(svgEl("path", { d: area(restored), fill: "#dff5e8", opacity: ".72" }));
+      svg.appendChild(svgEl("path", { d: line(restored), fill: "none", stroke: "#158557", "stroke-width": "4", "stroke-linecap": "round" }));
+      svg.appendChild(svgEl("path", { d: line(observed), fill: "none", stroke: "#c93636", "stroke-width": "4", "stroke-linecap": "round" }));
+      observed.forEach((v, i) => {
+        if (i % 3 === 0) svg.appendChild(svgEl("circle", { cx: x(i), cy: y(v), r: 4, fill: "#fff", stroke: "#c93636", "stroke-width": "2" }));
+      });
+      ["00:00", "06:00", "12:00", "18:00", "24:00"].forEach((label, i) => {
+        const text = svgEl("text", { x: left + i * plotW / 4, y: height - 15, fill: "#667789", "font-size": "12", "text-anchor": "middle" });
+        text.textContent = label;
+        svg.appendChild(text);
+      });
+    }
+
+    function renderRegions() {
+      const list = document.getElementById("regionList");
+      list.innerHTML = regions.map((r, index) => {
+        const success = r.success / r.potential * 100;
+        const failed = r.failed / r.potential * 100;
+        return `
+          <button class="region-row ${index === 0 ? "active" : ""}" data-region="${index}">
+            <div class="row-head"><b>${r.area}</b><span>${pct(r.potential, r.total)} 潜在削峰</span></div>
+            <div class="meter">
+              <div class="success" style="width:${success}%"></div>
+              <div class="failed" style="width:${failed}%"></div>
+            </div>
+            <div class="row-meta"><span>成功 ${fmt(r.success)}</span><span>失败/跳过 ${fmt(r.failed)}</span></div>
+          </button>
+        `;
+      }).join("");
+      list.querySelectorAll("[data-region]").forEach(button => {
+        button.addEventListener("click", () => selectRegion(Number(button.dataset.region)));
+      });
+      selectRegion(0);
+    }
+
+    function selectRegion(index) {
+      const r = regions[index];
+      document.querySelectorAll(".region-row").forEach((row, i) => row.classList.toggle("active", i === index));
+      document.getElementById("regionDetail").innerHTML = `
+        <div class="detail-card"><span>总站点</span><strong>${fmt(r.total)}</strong></div>
+        <div class="detail-card"><span>潜在削峰</span><strong>${fmt(r.potential)}</strong></div>
+        <div class="detail-card"><span>成功率</span><strong>${pct(r.success, r.potential)}</strong></div>
+      `;
+      document.getElementById("focusTitle").textContent = r.area;
+      document.getElementById("focusText").textContent = `${r.area} 潜在削峰 ${fmt(r.potential)} 个，成功 ${fmt(r.success)} 个，失败/跳过 ${fmt(r.failed)} 个。`;
+      document.getElementById("focusMetrics").innerHTML = `
+        <div class="detail-card"><span>失败率</span><strong>${pct(r.failed, r.potential)}</strong></div>
+        <div class="detail-card"><span>潜在占比</span><strong>${pct(r.potential, r.total)}</strong></div>
+        <div class="detail-card"><span>队列优先级</span><strong>${index < 2 ? "P0" : "P1"}</strong></div>
+      `;
+      const reason = index < 2 ? "建议优先拉取该区域容器日志，核对功率插值、重复索引和无功率数据。" : "建议作为区域对照样本，观察灰度模型收益和边界场景稳定性。";
+      document.getElementById("focusAlert").textContent = reason;
+    }
+
+    function renderIssues() {
+      const svg = document.getElementById("issueChart");
+      svg.innerHTML = "";
+      const width = 900, left = 190, top = 22, rowH = 38, max = Math.max(...issues.map(i => i.count));
+      issues.forEach((issue, index) => {
+        const y = top + index * rowH;
+        const barW = (issue.count / max) * 610;
+        const color = index < 2 ? "#c93636" : index === 2 ? "#b26a05" : "#2563eb";
+        const label = svgEl("text", { x: 12, y: y + 22, fill: "#263445", "font-size": "12" });
+        label.textContent = issue.type;
+        svg.appendChild(label);
+        svg.appendChild(svgEl("rect", { x: left, y: y + 7, width: 610, height: 18, fill: "#edf2f7", rx: "9" }));
+        svg.appendChild(svgEl("rect", { x: left, y: y + 7, width: barW, height: 18, fill: color, rx: "9" }));
+        const count = svgEl("text", { x: left + barW + 10, y: y + 22, fill: "#667789", "font-size": "12" });
+        count.textContent = fmt(issue.count);
+        svg.appendChild(count);
+      });
+
+      const list = document.getElementById("issueList");
+      list.innerHTML = issues.slice(0, 4).map((issue, index) => `
+        <button class="issue-row ${index === 0 ? "active" : ""}" data-issue="${index}">
+          <div class="row-head"><b>${issue.bucket}</b><span>${fmt(issue.count)} 次</span></div>
+          <div class="row-meta"><span>${issue.type}</span></div>
+        </button>
+      `).join("");
+      list.querySelectorAll("[data-issue]").forEach(button => {
+        button.addEventListener("click", () => selectIssue(Number(button.dataset.issue)));
+      });
+    }
+
+    function selectIssue(index) {
+      document.querySelectorAll(".issue-row").forEach((row, i) => row.classList.toggle("active", i === index));
+      const issue = issues[index];
+      document.getElementById("focusTitle").textContent = issue.type;
+      document.getElementById("focusText").textContent = `${issue.bucket} 出现 ${fmt(issue.count)} 次，是当前样例日最需要处理的归因桶之一。`;
+      document.getElementById("focusMetrics").innerHTML = `
+        <div class="detail-card"><span>次数</span><strong>${fmt(issue.count)}</strong></div>
+        <div class="detail-card"><span>样本去向</span><strong>${issue.bucket}</strong></div>
+        <div class="detail-card"><span>优先级</span><strong>${index < 3 ? "P0" : "P1"}</strong></div>
+      `;
+      document.getElementById("focusAlert").textContent = issue.action;
+    }
+
+    function renderPipeline() {
+      document.getElementById("pipelineStages").innerHTML = pipeline.map(([name, state]) => `
+        <div class="stage ${state === "gray" ? "gray" : state === "planned" ? "planned" : ""}">
+          <b>${name}</b>
+          <span>${state === "running" ? "运行中" : state === "gray" ? "灰度中" : "规划/部分实现"}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderModels() {
+      const cards = [
+        ["第一版模型", "production baseline", [["稳定性", 82], ["收益恢复", 68], ["边界覆盖", 54]]],
+        ["10000 站候选模型", "gray release", [["稳定性", 88], ["收益恢复", 79], ["边界覆盖", 73]]]
+      ];
+      document.getElementById("modelComparison").innerHTML = cards.map(([name, stage, scores]) => `
+        <article class="model-card">
+          <h3>${name}</h3>
+          <span class="badge">${stage}</span>
+          ${scores.map(([label, value]) => `
+            <div class="score-line">
+              <label><span>${label}</span><b>${value}</b></label>
+              <div class="meter"><div class="success" style="width:${value}%"></div></div>
+            </div>
+          `).join("")}
+        </article>
+      `).join("");
+    }
+
+    function renderSampleChart() {
+      const svg = document.getElementById("sampleChart");
+      svg.innerHTML = "";
+      const total = sampleBuckets.reduce((sum, item) => sum + item[1], 0);
+      let x = 18;
+      sampleBuckets.forEach(([label, value, color]) => {
+        const width = Math.max(44, value / total * 360);
+        svg.appendChild(svgEl("rect", { x, y: 36, width, height: 110, fill: color, rx: "8", opacity: ".88" }));
+        const text = svgEl("text", { x: x + 10, y: 66, fill: "#fff", "font-size": "12", "font-weight": "700" });
+        text.textContent = label;
+        svg.appendChild(text);
+        const count = svgEl("text", { x: x + 10, y: 88, fill: "#fff", "font-size": "18", "font-weight": "850" });
+        count.textContent = fmt(value);
+        svg.appendChild(count);
+        x += width + 8;
+      });
+      sampleBuckets.forEach(([label, value, color], index) => {
+        const y = 174 + index * 20;
+        svg.appendChild(svgEl("rect", { x: 20, y: y - 10, width: 10, height: 10, fill: color, rx: "2" }));
+        const text = svgEl("text", { x: 38, y, fill: "#263445", "font-size": "12" });
+        text.textContent = `${label}: ${fmt(value)} 条`;
+        svg.appendChild(text);
+      });
+    }
+
+    function bindQuestions() {
+      document.querySelectorAll("[data-question]").forEach(button => {
+        button.addEventListener("click", () => {
+          const [q, a] = questions[button.dataset.question];
+          document.getElementById("question").textContent = q;
+          document.getElementById("answer").textContent = a;
+        });
+      });
+    }
+
+    renderKpis();
+    renderMap();
+    renderCurve();
+    renderRegions();
+    renderIssues();
+    renderPipeline();
+    renderModels();
+    renderSampleChart();
+    bindQuestions();
   </script>
 </body>
 </html>
-
