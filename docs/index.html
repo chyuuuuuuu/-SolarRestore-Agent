@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>光擎 SolarRestore Agent</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --ink: #17202c;
+      --text: #263445;
+      --muted: #667789;
+      --line: #dbe3ec;
+      --blue: #2563eb;
+      --green: #168557;
+      --cyan: #087f8c;
+      --amber: #b26a05;
+      --red: #c93636;
+      --shadow: 0 16px 40px rgba(25, 39, 58, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand h1 { margin: 0; color: var(--ink); font-size: 22px; line-height: 1.2; }
+    .brand span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 7px;
+      padding: 8px 11px;
+      font-size: 13px;
+    }
+    nav a.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    main { max-width: 1180px; margin: 0 auto; padding: 24px 22px 44px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+    .intro { padding: 24px; display: grid; align-content: center; gap: 16px; }
+    .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .intro h2 { margin: 0; color: var(--ink); font-size: clamp(30px, 5vw, 52px); line-height: 1.04; letter-spacing: 0; }
+    .intro p { margin: 0; color: #4d5f72; font-size: 15px; line-height: 1.7; max-width: 760px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #324154;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .visual { padding: 18px; display: grid; gap: 12px; }
+    .sun-card {
+      min-height: 270px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      background:
+        radial-gradient(circle at 72% 18%, #ffd35a 0 11%, transparent 12%),
+        linear-gradient(180deg, #eaf4ff 0%, #f7fbff 48%, #e9f7f0 49%, #ffffff 100%);
+    }
+    .grid-lines {
+      position: absolute;
+      inset: 58% 0 0;
+      background-image:
+        linear-gradient(90deg, rgba(22, 133, 87, .18) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(22, 133, 87, .18) 1px, transparent 1px);
+      background-size: 36px 22px;
+      transform: perspective(460px) rotateX(58deg);
+      transform-origin: top;
+    }
+    .curve {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 24%;
+      height: 48%;
+      border-bottom: 4px solid var(--blue);
+      border-radius: 0 0 50% 50%;
+    }
+    .curve::after {
+      content: "";
+      position: absolute;
+      left: 22%;
+      right: 22%;
+      bottom: -4px;
+      height: 46%;
+      border-top: 4px solid var(--red);
+      border-radius: 50% 50% 0 0;
+    }
+    .caption {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      background: rgba(255, 255, 255, .92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      display: grid;
+      gap: 3px;
+    }
+    .caption strong { color: var(--ink); font-size: 14px; }
+    .caption span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .stat { padding: 16px; min-height: 112px; display: grid; gap: 8px; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .stat strong { color: var(--ink); font-size: 25px; line-height: 1.1; }
+    .stat p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .42fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .section-head {
+      padding: 15px 16px 10px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .section-head h3 { margin: 0; color: var(--ink); font-size: 16px; }
+    .section-head span { color: var(--muted); font-size: 12px; }
+    .section-body { padding: 16px; }
+    .flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px;
+      min-height: 128px;
+      background: #fbfcfe;
+      display: grid;
+      gap: 7px;
+      align-content: start;
+    }
+    .step b { color: var(--ink); }
+    .step span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .bars { display: grid; gap: 12px; }
+    .bar-row { display: grid; gap: 6px; }
+    .bar-label { display: flex; justify-content: space-between; gap: 12px; color: var(--text); font-size: 13px; }
+    .bar-track { height: 11px; background: #edf2f7; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: inherit; background: var(--blue); }
+    .bar-fill.green { background: var(--green); }
+    .bar-fill.amber { background: var(--amber); }
+    .bar-fill.red { background: var(--red); }
+    .chat { display: grid; gap: 10px; }
+    .bubble {
+      border: 1px solid var(--line);
+      background: #fbfcfe;
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .bubble.user { background: #eef5ff; border-color: #c9daf8; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 7px;
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 13px;
+    }
+    button:hover { border-color: #aeb9c7; }
+    .report {
+      white-space: pre-wrap;
+      margin: 0;
+      color: #2f3f52;
+      font-size: 13px;
+      line-height: 1.6;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px;
+    }
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      padding-top: 18px;
+    }
+    @media (max-width: 920px) {
+      .hero, .workspace { grid-template-columns: 1fr; }
+      .stats, .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      nav { justify-content: flex-start; }
+    }
+    @media (max-width: 560px) {
+      main { padding-inline: 14px; }
+      .topbar { padding-inline: 14px; }
+      .stats, .flow { grid-template-columns: 1fr; }
+      .intro h2 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <h1>光擎 SolarRestore Agent</h1>
+        <span>全球光伏削峰还原自进化智能体平台</span>
+      </div>
+      <nav>
+        <a href="#workflow">闭环流程</a>
+        <a href="#demo">交互演示</a>
+        <a class="primary" href="https://github.com/chyuuuuuuu/-SolarRestore-Agent">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="panel intro">
+        <div class="eyebrow">Solar PV Clipping Restoration Agent</div>
+        <h2>把削峰识别、功率还原和模型进化串成可解释的生产闭环</h2>
+        <p>系统每天按区域时区运行，识别潜在削峰站点，恢复真实发电能力，并把失败归因、样本回流、数据集重构、候选模型灰度和飞书确认卡片统一到一个 Agent 工作台。</p>
+        <div class="chips">
+          <span class="chip">监控看板</span>
+          <span class="chip">日志归因</span>
+          <span class="chip">样本回流</span>
+          <span class="chip">灰度评估</span>
+          <span class="chip">飞书交互</span>
+        </div>
+      </div>
+      <div class="panel visual">
+        <div class="sun-card" aria-label="削峰还原曲线示意图">
+          <div class="curve"></div>
+          <div class="grid-lines"></div>
+          <div class="caption">
+            <strong>还原前后功率曲线</strong>
+            <span>红色为被削峰曲线，蓝色为 Agent 估算的可发电能力上沿。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="样例运行指标">
+      <div class="panel stat">
+        <span>覆盖区域</span>
+        <strong>13</strong>
+        <p>按本地时区调度生产任务</p>
+      </div>
+      <div class="panel stat">
+        <span>样例站点</span>
+        <strong>29,456</strong>
+        <p>欧洲日终样例监控口径</p>
+      </div>
+      <div class="panel stat">
+        <span>潜在削峰</span>
+        <strong>58.2%</strong>
+        <p>进入检测与还原链路</p>
+      </div>
+      <div class="panel stat">
+        <span>样本回流</span>
+        <strong>3,262</strong>
+        <p>进入高价值样本池</p>
+      </div>
+    </section>
+
+    <div class="workspace">
+      <div class="left">
+        <section id="workflow" class="panel">
+          <div class="section-head">
+            <h3>生产闭环</h3>
+            <span>从当天运行到下一版模型</span>
+          </div>
+          <div class="section-body">
+            <div class="flow">
+              <div class="step"><b>1. 监控运行</b><span>按区域和本地时区触发削峰检测、场景识别和功率还原。</span></div>
+              <div class="step"><b>2. 自动归因</b><span>汇总功率插值失败、重复索引、无功率、气象缺失和接口契约问题。</span></div>
+              <div class="step"><b>3. 样本回流</b><span>把失败原因沉淀成高价值样本池，重构数据集和场景标签。</span></div>
+              <div class="step"><b>4. 灰度进化</b><span>新旧模型复用同一份输入并行推理，依据收益和稳定性晋升。</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" style="margin-top:18px">
+          <div class="section-head">
+            <h3>区域处理表现</h3>
+            <span>样例数据</span>
+          </div>
+          <div class="section-body bars">
+            <div class="bar-row">
+              <div class="bar-label"><span>Europe/Berlin 成功率</span><b>32.72%</b></div>
+              <div class="bar-track"><div class="bar-fill red" style="width:32.72%"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>Europe/London 成功率</span><b>34.85%</b></div>
+              <div class="bar-track"><div class="bar-fill amber" style="width:34.85%"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>Europe/Madrid 成功率</span><b>55.77%</b></div>
+              <div class="bar-track"><div class="bar-fill green" style="width:55.77%"></div></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside id="demo" class="panel">
+        <div class="section-head">
+          <h3>Agent 问答</h3>
+          <span>静态演示</span>
+        </div>
+        <div class="section-body chat">
+          <div class="bubble user" id="question">失败最多的原因是什么？</div>
+          <div class="bubble" id="answer">失败最多的是功率数据插值失败，其次是重复索引和无功率数据。Agent 会把这些问题分桶进入数据质量集、预处理规则集和可用性报表，而不是直接污染训练样本。</div>
+          <div class="actions">
+            <button data-question="status">运行状态</button>
+            <button data-question="risk">区域风险</button>
+            <button data-question="gray">灰度评估</button>
+          </div>
+          <pre class="report" id="report">日终建议：
+1. 优先处理 Europe/Berlin 和 Europe/London 的失败链路。
+2. 对重复 timestamp 训练前统一聚合或去重。
+3. 将无功率数据标记为可用性问题，不作为负样本训练。
+4. 候选模型进入灰度前，需要通过收益、稳定性和接口契约三类指标。</pre>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      这是公开展示页，不包含生产凭证。完整可运行服务见仓库中的 <code>demo/pv_clipping_feishu_agent/server.py</code>。
+    </footer>
+  </main>
+
+  <script>
+    const answers = {
+      status: {
+        q: "今天欧洲削峰还原状态如何？",
+        a: "样例日覆盖 29,456 个站点，潜在削峰占比 58.2%。当前重点不是单点预测，而是把失败链路归因并沉淀到下一轮模型和规则迭代。"
+      },
+      risk: {
+        q: "Europe/Berlin 为什么风险最高？",
+        a: "Berlin 区域站点规模最大，失败或跳过数量最高，成功率只有 32.72%。Agent 会优先拉取该区域日志和样本，定位数据接入、重复索引和功率缺失问题。"
+      },
+      gray: {
+        q: "新旧模型灰度机制怎么评估？",
+        a: "候选模型与基线模型复用同一份功率、气象、配置、mask 和 scene_vector 输入，并行输出后比较多发电量、误差稳定性、边界场景和失败率。"
+      }
+    };
+    document.querySelectorAll("button[data-question]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const item = answers[button.dataset.question];
+        document.getElementById("question").textContent = item.q;
+        document.getElementById("answer").textContent = item.a;
+      });
+    });
+  </script>
+</body>
+</html>
+
